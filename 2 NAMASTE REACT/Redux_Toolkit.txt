@@ -1,0 +1,92 @@
+Why redux-toolkit > react-redux?
+-> redux requires too much boiler-plate code
+-> too complicated to create redux store
+-> we have to add a lot of packages for redux to ddo anything useful
+
+Redux: 
+-> Redux "Store" is a big 'object'. It holds data & acts as a global context
+-> Redux Store has separate "slices" (ex. users Slice, cart Slice, etc. )
+-> Component cannot directly modify the store, it will have to  "dispatch" an "action" (ex. addItem), this action will call a fxn.(ex. addItem()) & this fxn. will modify the store(relevant slice). This fxn.(addItem()) is called "reducer fxn." 
+-> Components use "Selector Hook" to read data from a slice of our store
+-> If a component reads data from store(via selector), it's said that the component has "subscribed" to the store
+
+-> Each app has only one store & is called only source of truth
+
+Redux Toolkit: 
+-> npm i @reduxjs/toolkit : core of redux (redux can be used with other js frameworks as well)
+-> npm i react-redux : bridge b/w redux & react 
+
+S1: Create Slice(s): in utils->slices->TodoSlice.js: 
+
+    import { createSlice, nanoid } from "@reduxjs/toolkit";
+
+const TodoSlice = createSlice({
+    name: 'todo',       //name of this slice
+    initialState: {
+        todos: [{
+            id: nanoid(),
+            task: 'This is test task',
+        }],
+    },
+    reducers: {                 //we write our reducer fxns. here
+        addTodo: (state, action) => {   // state => currentState (initially = initialState), 
+            const todo = {             // action.payload => data coming from a component to modify state 
+                id: nanoid(),  //nanoid() provides unique stable id 
+                task: action.payload,
+            }
+            state.todos.push(todo);
+        },
+        deleteTodo: (state, action) => {
+            state.todos.filter((todo) => todo.id !== action.id)
+        },
+        updateTodo: () => {},
+    }
+})
+export const {addTodo, deleteTodo, updateTodo} = TodoSlice.actions
+export default TodoSlice.reducer
+
+S2: Create store and slices into it: In utils-> store.js:
+    
+    import {configureStore} from "@reduxjs/toolkit"
+    const store = configureStore({
+        todo: TodoSlice
+    }) 
+    export default store;
+
+S3: Wrap the app with <Provider> ard provide it with the store created:  in app.jsx: 
+
+    return (
+    <Provider store={store}>
+        <AddTodo />
+        <DisplayTodos />
+    </Provider>
+  )
+
+S4: Reading Data from store in a component: in components -> DisplayTodos.jsx: we read the state & display all the objects in todos as:
+
+    const todos = useSelector((store) => store.todo.todos) //store.todo => store mein todo name vali slice
+    return (
+        todos.map(...and so on)
+    )
+
+S5: Modifying data of a slice of our store: in components -> AddTodo.jsx: 
+
+    const [newTask, setNewTask] = useState()
+    const dispatch = useDispatch();
+    const addTodoHandler = (e) => {
+        e.preventDefault();
+        dispatch(addTodo(newTask));   //dispatch(reducerfxn(payload)) reducer fxn,. ka use karke payload ko dispatch karo
+    }
+    return (
+    <form onSubmit={addTodoHandler} className="space-x-3 mt-12">
+      <input
+        type="text"
+        placeholder="Enter a Todo..."
+        value={newTask}
+        onChange={(e) => setNewTask(e.target.value)}
+      />
+      <buttontype="submit">
+        Add Todo
+      </button>
+    </form>
+  )

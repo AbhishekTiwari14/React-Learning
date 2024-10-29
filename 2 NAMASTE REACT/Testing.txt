@@ -1,0 +1,112 @@
+Tests help prevent regressions by ensuring that new code changes do not break existing functionality.
+
+E2E Testing: tesing complete app by mocking whole user journey
+Unit Testing: Testing some particular features of some particular components
+Integration Testing: Testing Integration of two components(ex. when we search for a restaurant in search component, it should filter & present the matching restaurants in restaurantCards component)
+
+-> RTC does not run on browser but on jsDOM(browser-like thing without UI)
+
+S1: install react testing library & jest
+    npm install --save-dev @testing-library/react
+    npm i -D jest   //react-testing-library uses jest(js testing framewoork) at the core
+           
+
+S2: configure jest
+    npx jest --init     //choose jsdom (browser-like) as your testing environment
+    npm i -D jest-environment-jsdom
+
+S3: create __tests__ folder within components folder & name test files as : .test.js
+
+S4: Configure babel: 
+    npm i --save-dev babel-jest @babel/core @babel/preset-env
+    npm i @babel/preset-react
+    .babelrc :
+    {
+        "presets": [
+            ["@babel/preset-env", {"targets": {"node": "current"}}],
+            ["@babel/preset-react", {"runtime": "automatic"}]
+        ]
+    }
+
+S5: create a function/component: ex.sum.js
+    export const sum(x, y) => x+y; 
+
+S6: Write test case for it: ex. sum.test.js:
+    import { sum } from "../sum";
+    test("Sum of two numbers", () => {
+        expect(sum(2,3)).toBe(5);
+    })
+
+S7: git ignore coverage folder: .gitignore: /coverage
+
+S8: If the component in which we are testing has images(jpg,png,svg files) being used, then tset will fail bcoz jest can only read js & not jpg/png/svg files. So, we create mock image files and configure jest to replace actual image by mock file for testing.
+-> Create mocks folder within src & create a mock file: ex.) moackImage.js: export default "mockImage.jpg";
+-> Also config jest file: jest.config.mjs: 
+    moduleNameMapper: {
+      "\\.(jpg|png|svg)$" : "../mocks/imageMock.js" 
+    }
+
+S9: if the tested component has subscribed to redux store, then provide that store while testing as well(bcoz by-default it does'nt have access to it): ex.) 9 -> AddTodo.jsx component: AddTodo.test.js:
+    test("Input task should work properly", ()=> {
+        const addTodo = render( 
+        <Provider store={store}>
+            <AddTodo /> 
+        </Provider> )
+    })
+
+S10: if the tested component is wrapped in router: then wrap it in StaticRouter in test file: ex.) 
+    import { StaticRouter } from "react-router-dom/server"
+    test("Input task should work properly", ()=> {
+        const addTodo = render( 
+        <StaticRouter>
+            <Provider store={store}>
+                <AddTodo /> 
+            </Provider> )
+        </StaticRouter>
+    })
+
+S11: To select a particular element in component, we previde data-testid = "idName" attribute to our element in actual component which we can select as componentName.getAllByTestId("idName);
+ex.) 10 Testing -> component -> Header.jsx ka react logo wala element select krne ke liye: 
+    Header.jsx: <img src={reactLogo} data-testid = "reactLogo" />
+    Header.test.js: 
+    test("test react logo load", ()=> {
+        const header = render(<Header />);
+        const reactLogo = header.getAllByTestId("reactLogo");
+        console.log(reactLogo); //returns an array of all objects with data-testid = "reactLogo"(here, its just 1 object present with this dataid)
+        expect(reactLogo[0].src).toBe("http://localhost/imageMock.png")
+    })
+
+S12: If the component uses fetch() api (which is provided by browser), then we create mock fetch call as:
+    global.fetch = jest.fn(() => {
+        return Promise.resolve({
+            json: ()  => {
+                Promise.resolve(mockData); //mockData = file exporting an object which is a dummy data
+            }
+        })
+    })
+
+S13: To use .toBeInTheDocument() : install :
+    npm i -D @testing-library/jest-dom
+
+S14: To run tests automatically whenever use save in a test file: add this to package.json: scripts: 
+    "watch-test": "jest --watchAll", and once run:  npm run watch-test
+
+S15: For testing component invloving async await: 
+    use async for test( "Are products rendering",async()=> {render (<Component />)}) & use await for expect (ex. expecting data from api call):
+    await waitFor(()=> {
+        expect(component.getByTestId("RestaurantList")
+    }) 
+    const restaurants = component.getByTestId("RestaurantList")
+
+S16: Firing an event: ex.) 
+
+    fireEvent.change(searchInput, {
+        target: {
+            value: "Foo"  
+        }
+    })
+    fireEvent.click(searchBtn)
+    expect(restaurantList.children.length).toBe(3); 
+
+    So, it is mocking if user searches "Foo" in search box & clicks search button, then it should filter out only the matching restaurants which in our mockData = 3(let's say: "Food King", "Ram Fresh Food", "Good Food restaurant") 
+

@@ -1,0 +1,14 @@
+Different Ways of writing CSS:
+-> Normal Native CSS(Separate file or inline-> style = {->for JS{->forObject}} )
+-> SASS/SCSS
+-> Component Libraries : Material UI, Chakra UI
+-> Styled Components: 
+
+Tailwind:
+-> Giving custom value to a property -> use []
+ex.) mx-[7.5px]
+
+Media Queries in Tailwind:
+sm:
+md: 
+lg: 

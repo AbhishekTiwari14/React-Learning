@@ -1,0 +1,46 @@
+npx create-react-app V/S npm create vite@latest -> npm i: npx c-r-a has huge bundle of unneccesary packages installed with it & hence is bulky & takes longer time to install, vite is faster. vite is a bundler.
+
+SPA= Single Page Application bcoz only 1 HTML File(index.html) having a div->id=root and jsx code(code written in other jsx files are assembled in app.jsx(they must be wrapped in a single parent->ex.) fragment<></> and) is rendered into this root div via main.jsx/index.jsx ]
+
+Injecting 'evaluated expressions'/'var.' in jsx functional components -> use {varName}
+
+REACT HOOKS: Helps in UI Updation 
+(1) useState Hook: used to update state/value of variable;
+            Fxn. to update value of var        Default(starting) value of var.
+                         |                          |
+Syntax: let [varName, setVarName] = useState(defaultValue)   
+
+ReactDOM.createRoot(in main/index.jsx) creates a DOM-Like tree structure.
+
+Real DOM vs. Virtual DOM:
+The Real DOM represents the actual HTML structure of a web page. It is a tree-like structure with nodes corresponding to HTML elements. When changes occur in a web application, the Real DOM is updated, and the entire tree is re-rendered.
+
+The Virtual DOM, on the other hand, is an abstraction of the Real DOM created and managed by React. It is a lightweight copy of the Real DOM, stored in memory as a JavaScript object. React uses the Virtual DOM to perform efficient updates and minimize the number of changes made to the Real DOM.
+
+-> Reconciliation Process:
+
+When a component's state or props change in React, it triggers a re-render of that component. Instead of directly updating the Real DOM, React first updates the Virtual DOM.
+React then performs a process called "reconciliation" or "diffing" to determine the difference (diff) between the current Virtual DOM and the previous one. This involves comparing the new and old Virtual DOM trees to identify the minimal set of changes needed to update the UI.
+React generates a minimal set of DOM operations needed to bring the Real DOM in sync with the Virtual DOM.
+
+During "diffing" process, trees are traversed recursivelly but efficiently bcoz Diffing of lists is performed using keys. Keys should be "stable, predictable, and unique.
+
+-> Batching Updates & Asynchronous Rendering:
+
+React optimizes rendering by batching updates. Multiple state changes that occur within the same synchronous block of code are grouped together, and React performs a single update to the Virtual DOM(Asynchronous Rendering: In a UI, it's not necessary for every update to be applied immediately; in fact, doing so can be wasteful, causing frames to drop and degrading the user experience. Infact, rendering work can be paused, prioritized, and resumed fiber algo). This ensures that unnecessary intermediate states are avoided, and the rendering process is more efficient.
+React Fibre Algo is used to do so (Reconciliation & batching updates, etc.)
+-> Read This: https://github.com/acdlite/react-fiber-architecture
+
+HTML->JSX: class->className, for->htmlFor, <img> -> <img/>, style = {{backgroundColor: colorVar}}
+
+PROPS(properties): It makes components reusable by making it dynamic in terms of values of vars. it holds). Hum ek hi component(let's sayg card with productName & price) ko multiple jagah/baar use kar sakte hain aur har jagah hum different values of productName & price de sakte hain.
+//pass->use : (props) -> {props.photu}, {props.naam}, {props.power} 
+Destructured-> ({photu, naam, power}) -> {photu}, {naam}, {power}
+
+useCallback(fxn., [dependencies array]) : is a hook used for memoization purpose. it is an optimization technique using which we can remember dependencies in dependency array as cache data -> see 6 Password Generator
+
+useEffect(fxn., [dependencies array]): runs the fxn. only when there is change in any dependency (in dependencies arrray) 
+
+useRef: kisi chiz ka reference lene ke liye kaam aata hai. const passwordRef = useRef(null) -> within the tag, add attribute: ref={passwordRef}
+
+if you are using loops in react, give key to each iteration

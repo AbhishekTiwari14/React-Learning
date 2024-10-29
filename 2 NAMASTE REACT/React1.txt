@@ -1,0 +1,180 @@
+Gihub Code Link - https://bitbucket.org/namastedev/namaste-react-live/src/master
+
+Library v/s Framework: Library provides some specefic fxnalities while Framework is a more comprehensive solution with strict rules. React = library bcoz we still need external libraries like react-router to make a full-fledged front-end app.
+
+-> Creating Element via React
+const heading = React.createElement("tagName", {attributes(props): values}, "chidren(ie, text)")
+-> Making a HTML element, the root element of React: html-> <div id = "root">
+const root = ReactDOM.createRoot(document.getElementById("root"))
+->Injecting react element into html
+root.render(heading) //It will overwrite any content inside root element written in html file 
+
+........................................
+
+BUNDLERS: vite/webpack/parcel are common BUNDLERS
+-> They do 1) Creating server 2) Minify code 3) Cleans code 4) optimizations(image, etc.) 5) HMR(Hot Module Reloading) 6) tree shaking(removes unwanted code)  7) provides facility of browserslist 8) CCompression 9) caching 
+
+->Pollyfills: conversion of newer code to older/legacy code so as to solve comtability issue with older versions of browsers. This is done by BABEL.
+
+-> JSX is syntax extension for JavaScript that allows developers to write HTML-like code (not actually html) within JavaScript. 
+
+-> Babel(transpiler) converts JSX code into JS
+
+-> JSX -> Babel => React.createElement => object => HTML(DOM)
+
+-> React fuctional component is just a JS fxn. that return jsx code
+
+.........................................................................
+
+-> In-line style in JSX: Style is given as an object: 
+    ex.) <div style = {{backgroundColor: "blue", margin: "10px"}} ; 1st {} is for writing js & 2nd/inner {} is for writing object
+
+-> Config driven UI: UI based on backend -> ex.) swiggy -> we want to show only the restaurants around the location of user 
+
+->Props : same as arguments passed when calling a function
+//1) Functional component mein parameter dena:
+const card = (props) => {            OR     const card = ({price, distance} => {
+
+    return (                                return (
+//2) using these props
+       .. jsx                                   .. jsx ..
+       <h1> {props.restaurant} </h1>                   <h1> {restaurant} </h1>
+       <h1> {props.price} </h1>                   <h1> {price} </h1>
+       <p> {props.distance} </p>                  <p> {distance} </p>
+    )                                       )
+}                                       }
+
+
+//3) Differnt cards ko differnt data je sah render karna
+app.js: 
+<>
+    <card restaurant = "Pizza Hut" price = "300" distance = "5 Km" />
+    <card restaurant = "Dominos" price = "200" distance = "3 Km" />
+    <card restaurant = "Pizza Wings" price = "250" distance = "1.5 Km" />
+    and so on....
+</>
+react.render(app.js)
+
+->Array of objects => array.map((obj)=> )
+
+-> React Reconciliation: is the algorithm react uses to diff one tree with other to determine which part needs to be changed/updated
+
+Exporting/Importing Components: 
+-> 1) Default export: const Header = () => ();  
+                      export default Header;
+        Importing=>  import Header(or we can name it anything) from "/components/Header";
+-> 2) Named export: export const Footer = () => ();
+        Importing=> import {Footer} (or {Footer as anyName}) from "/components/Footer";
+-> 3) Multiple named imports from same file(say Errs.jsx):
+                    export const Header = () => ();
+                    export const Footer = () => ();
+        Importing=> import {Header, Footer} from "/components/Errs"
+                        OR
+                    import * as XYZ(or anyName) from "/components/Errs" adn us as {XYZ.Header} & {XYZ.Footer}
+        
+-> 4) 1 Default export & other named export(s) from same file(same Errs.jsx):
+                    export const Footer = () => ();
+                    const Header = () => ();
+                    export default Header;
+        importing=> import Header, {Footer} from "/components/Errs";
+
+HOOKS:
+-> Hooks are just normal JS Fxns, ex.) useState is a fxn. which returns an array [variableName, Fxn. to update varible]. This is the default way of creating & updating variables in react.
+-> 1) useState: const [varName, setVarName] = usState("Default/initial value of var")
+-> 2) useEffect: Takes up a fxn./callback fxn. & a dependency array. This fxn./callback fxn. is called everytime their is any change in any element of our dependency array.
+    useEffect(fxn., [dependency array]) or useEffect(() => {}, []). 
+  -> If dependency array is left empty [], then the fxn. will be called just once just after the page initially renders
+  -> If dependency array is absent , ie, useEffect(fxn.), then this fxn. will be called everytime any component renders/re-renders.
+
+Shimmer UI(better alternative of loading): Showing empty blocks/cards structure initially untill we get the data to fill it in
+
+Building Search Feature: 
+-> Make 2 useState vars: allData & filteredData 
+-> Change only filtered data whenever something is searched
+-> map through filtered data & not the allData to render cards of these data 
+
+Custom Hooks: Is not but a fxn. where we can use stateful logic accross components, ie, we can use in-built hooks such as useState, useEffect, etc. and combos of these in our custom hook.
+-> Ex.) Custom hook to make api call and get data -> see 6 Custom Hooks -> useApi.jsx
+-> other exs.) For auth, 
+-> Why use Custom Hooks when we can write js fxns.?
+Ans) Custom hooks can use Stateful logic by using built-in hooks that react provides, also these can be used accross components
+
+
+Chunking/ Code Splitting/ Dynamic Bundling/ On Demand Loading/ Dynamic Import: All mean the same
+-> Parcel(Bundler) bundles all our JS code in 1 single js file and loads it on browser all at once.
+-> There can be cases where some component(s) may be entirely for different set of users(ex. swiggy by-default should have restaurants data bcoz people generally order food there, but it also has instamart wher people can buy grocery), for such components(ex.instamart) we can ship their JS in a separate file on the browser on demand when user clicks the instamart link .
+-> Now, when we click in instamart link for the first time, react will suspend its rendering as we don't have its JS file pre-loaded (it's loading on time), so we wrap our element with <Suspense> </Suspense> as:
+
+import {lazy, Suspense} from "react"
+//We don't do: import Instamart from "./components/Instamart.jsx" ; wee instead do: 
+
+const Instamart = lazy(()=> import("..components/Instamart.jsx"))
+
+createBrowserRouter(
+<Route path = "/instamart" element = { <Suspense fallback = {<Shimmer />}> <Instamart /> </Suspense> } />
+)
+
+...............................................................................................
+
+Local Storage: 
+-> data is stored in local storage as "String" and not "JSON", so make sure to convert data to/from json to/from string : before setting data of LS: json->string by doing localStorage.setItem(JSON.stringify()); when getting data from LS: string->json by doing JSON.parse(localStorage.getItem()).
+
+-> ex.) useEffect(()=> {
+    const todos = localStorage.getItem(JSON.parse(todos));
+    if(todos && todos.length>0){
+      setTodos(todos);
+    }
+  }, [])
+
+  useEffect(()=> {
+    localStorage.setItem(JSON.stringify(todos))
+  },[todos])
+
+..................................................
+
+Higher Order component is a fxn that takes a component as an argument & returns another component.  
+
+....................................................
+
+OTHER HOOKS:
+
+useMemo():  const cachedValue = useMemo(calculateValue, dependencies)
+-> Helps us cache the result of a calcuation(CPU Intensive) b/w re-renders.
+-> Basically, react re-renders the whole component whenever any of its state/prop changes. So, let's say we have a function running in our component which is doing some heavy calcuation & we have another element in the same component which has nothing to do with this heavy calcuation. If state of our 2nd task changes, then whole component will re-render and the same heavy-calcuation which was already completed will start again. To avoid that, useMemo is used.
+
+-> useMemo(()=> fxn.(argument), [dependencies]): Whatever this fxn. returns for the given argument would be memoized 
+
+-> Ex. component: ExUseMemo: 
+
+const ExUseMemo = () => {
+
+  function findnthPrime(n){
+    console.log("Fxn. call") 
+    return value} //takes n & return the nth prime no.
+
+  const[name, setName] = useState("");
+  const [inputNumber, setInputNumber] = useState();
+  //memoizing findnthPrime() fxn.
+  const nthPrime = useMemo(()=> findNthPrime(inputNumber), [inputNumber]);
+
+  return (
+    <div>
+      <input type="text" value={name} onChange={(e)=> setName(e.target.value)}/>
+      <p className="mt-2 font-bold text-lg">Hello {name}</p>
+      <input type="number" value={inputNumber} onChange={(e) => setInputNumber(e.target.value)}/>
+      <p className="mt-2 font-bold text-lg">{inputNumber}th Prime No. is {nthPrime}</p>
+    </div>
+  )
+}
+Here, if ex. user enters 12 in number field, fxn. call is made & it gets : 12th prime no. is 37 now if user does any change in name input, altough the component will be re-rendered but this fxn.(findnthPrime()) won't be called again(calculation for nthPrime(12) won.t be done again) as it is memoized & their is no change in number field.
+
+
+useCallback():  const cachedFn = useCallback(fn, dependencies)
+-> Caches a fxn. definition b/w re-renders
+
+useRef():  const ref = useRef(initialValue)
+-> lets you reference a value that’s not needed for rendering.
+-> There are different ways of creating variables: 1)const, 2) let, 3) useState, 4) useRef
+-> if we update the value of "state" var. (ex. using button onclick), then its value will change & also reflet the same on UI(component re-renders);
+-> if we update the value of a "let" var. (ex. using button onclick), then its value will change but won't reflect the same on UI(component does'nt re-render); also finally, when the component re-renders(due to some state/prop change), "let" var. ki value will not persist and it will take back its initial value.
+-> if we update the value of a "ref" var. (ex. using button onclick), then its value will change but won't reflect the same on UI(component does'nt re-render); also finally, when the component re-renders(due to some state/prop change), "ref" var. ki value will persist and it will finally reflect on the UI.

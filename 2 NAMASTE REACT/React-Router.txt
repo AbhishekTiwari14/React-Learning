@@ -1,0 +1,72 @@
+<a href=""> -> <Link to=""> : bcoz <a> will reload whole page
+<NavLink to="/" className = {({isActive}) => {`bg-blue m-4 p-8 ${isActive? "text-orange-700" : "text-black"} `}} : ie, NavLink gives us {isActive} using which we can highlight the page mentioned in our navbar that we currently are in
+
+S-1: -> In "App.jsx" & use <Outlet /> component as a placeholder for variable component as: Layout.jsx -> 
+    return (
+    <>
+      <Header /> //Each route(page) will have same Header
+      <Outlet /> //we will inject different components for different routes(pages)
+      <Footer /> //Each route(page) will have same Footer
+    </>
+  )
+
+S-2: -> In "main.jsx", create router and replace <App /> with <RouterProvider router= {router} /> in root.render
+Creating router :  Nested routes are done with outer nesting of <Layout />
+  M-1: const router = createBrowserRouter(
+    createRoutesFromElements(
+    <Route path = "/" element = {<App />}>
+       <Route path = "about" element = {<About />} /> {/* /about  */}
+      <Route path = "contact-us" element = {<Contact />} />
+      <Route path = "product/" element = {<Product />}>
+        <Route path = ":productId" element = {<Home />} />
+      </Route>
+    </Route>
+  )
+
+  M-2: // const router = createBrowserRouter([
+//   {
+//     path: '/',
+//     element: <Layout/>,
+//     children: [
+//       {
+//         path: "",
+//         element: <Home />
+//       },
+//       {
+//         path: "about",
+//         element: <About />
+//       },
+//       {
+//         path: "contact",
+//         element: <Contact />
+//       }
+//     ]
+//   }
+// ])
+
+-> Dynamic Routing(Catching params): on line 21-> if user enters /product/tv, then we can grab this tv and get related data from backend.
+To catch this,we use "useParams()" hook in project.jsx as : 
+  const Product = () => {
+    const {productId} = useParams();
+    return (
+        <div>
+            <h1 className="font-extrabold text-3x text-center m-8 text-orange-500">Product-Param = {productId}</h1>
+            
+        </div>
+    )
+}
+//Make sure we use the same name at both places, ie, in routes & in component (here, it is "productId")
+
+-> useSearchParams: <Link to="watch?v={videoId}" 
+Router-> <Route path="watch" element={<VideoContainer />}/>
+in VideoContainer.jsx: const [searchParams] = useSearchParams();
+searchParams.get("v") ; // gives the videoId
+
+-> Loader and useLoaderData() hook, if we are fetching data from backend on some page, then we can fetch data just when user hovers on the link of that page(even before he clicks on the link), this can be done as: 
+<Route loader = {fxn. we wrote to fetch data}  />
+and in the component file, write this async fxn.(export const) & const data = useLoaderData(); 
+
+Server Side Routing(SSR) v/s Client Side Routing(CSR):
+-> In SSR, all our pages come from my server, so whenever we route to new page, server sends the file.
+-> In CSR, all our pages are already available with browser
+-> React by-default uses CSR

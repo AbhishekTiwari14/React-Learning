@@ -1,0 +1,82 @@
+Prop Drilling : We can pass data from parent component to child component and child to grandchild and so on..., This can form a long heirarchichal chain P->C->GC->GGC->..., This is called Prop Drilling
+We need to have a global file/context for such data so that any component can access/modify this data without doing prop drilling
+
+METHOD 1: 
+S1: Create separate context Folder in src & create separate files to create context for separate types of data(ex. userData, productData, etc.) 
+
+S2: Create a context for a particualar data: ex.) context->UserContext.js:
+
+    import React from "react";
+    const UserContext = React.createContext();
+    export default UserContext;
+
+S3: Create Context Provider for the same: ex.) constext-> UserContextProvider.jsx:
+
+    const UserContextProvider = ({children}) => {
+        const [user, setUser] = useState(null);//this is the data we want to access/modify from any component
+        return (
+            <UserContext.Provider value={{user, setUser}}>
+                {children}         {/* These work similar to <Outlet /> */}
+            </UserContext.Provider>
+
+        )
+    }
+    export default UserContextProvider;
+
+S4: In app.jsx -> Wrap the components with UserContextProvider as :
+
+    <UserContextProvider>
+      <Login />
+      <Profile />
+    </UserContextProvider>
+
+S5: Accessing this data in component: ex.) components->Profile.jsx:
+
+    const {user} = useContext(UserContext);
+    return ( 
+        <h1> {user} </h1>
+    )
+
+S6: Modifying this data from a component: ex.) components->Login.jsx:
+
+    const {setUser} = useContext(UserContext);
+    setUser("Abhishek");
+
+METHOD 2:
+
+S1: In contexts -> TodoContext.jsx:
+
+ export const TodoContext = createContext({  // Context is to be created for this data
+    todos: [                    //Todo is an array of objects where each object stores info about a task
+        {
+            id: 1,
+            todo: "Mention Task Here",
+            completed: false
+        }
+    ],
+    addTodo: (todo) => {},  //fxn. to add new task  //Fxns. are just named here but are defined in app.jsx
+    updateTodo: (id, todo) => {}, //fxn. to udate task 
+    deleteTodo: (id) => {}, //fxn. to delete a task
+    toggleComplete: (id) => {} //fxn. to draw line-through when a task is marked complete
+}); 
+
+export const useTodo = () => {  
+    useContext(TodoContext);
+}
+
+export const TodoProvider = TodoContext.Provider;
+
+S2: In app.jsx:
+
+const [todos, setTodos] = useState([]);
+
+  const addTodo = (todo) => {
+    setTodos((prev) => [{id: Date.now(),...todo}, ...prev])
+  }
+
+  const deleteTodo = (id) => {
+    setTodos((prev) => prev.filter((todo) => {
+      todo.id !==id
+    }))
+  }
+  and so on....

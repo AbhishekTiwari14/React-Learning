@@ -1,0 +1,203 @@
+Discuss Requirements: 
+->Features: Search Bar, Sidebar, 
+->Tech-Stack: Redux|ContextAPI ; Tailwind|Etc. ; Formik ; react-router-dom; bundler; testing: jest + RTL
+
+Discuss LLD:
+-> Components that you will build
+HomePage:
+// Header: {SideBar, Logo, Search Panel, User Profile}
+// Main: Videos Display: {buttons list to filter, individual video component}
+Video Page: {Header, VideoViewer, like/subsrcibe panel, comments, side videos recommeder panel}
+
+STEPS:
+
+1) npx create-react-app: will give us good setup 
+
+2) Installing tailwind: 
+-> npm i -D tailwindcss
+-> npx tailwindcss init
+-> tailwind.config: content: ["./src/**/*.{js,jsx}"]  or  ["./src/**/*.js"]
+-> App.css:
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
+
+-> col-span-{total: 12}
+-> Focus more on functionality & less on css 
+
+3) Create components
+
+4) install redux: 
+-> npm i @reduxjs/toolkit
+-> npm i react-redux
+& setup store
+
+5) Create routing using react-router-dom
+
+................................................
+
+Creating Search functionality:
+
+-> Debouncing: ex.) Debouncing with 200 ms => that api call will only be made for difference b/w 2 keystrokes is >200ms   
+    Implementation:
+    
+    useEffect(()=> {
+      
+      const timer =  setTimeout(()=> {
+        getSearchSuggestions();
+      }, 200);
+
+      return ()=> {
+        clearTimeout(timer);
+      }
+
+    }, [searchQuery])
+
+-> Further Optimization: When User presses backspace(s) on its search query: Caching
+
+To do caching/(store search suggestions)  we create a slice in our redux store
+-> slices: SearchSlice.js: ]
+
+    const SearchSlice = createSlice({
+    name: "search",
+    initialState: {
+
+    },
+    reducers: {
+        cacheResults: (state, action) => {
+            state = Object.assign(state, action.payload);
+        }
+    }
+})
+
+-> Components/Header.js: 
+
+    useEffect(()=> {
+      
+      const timer =  setTimeout(()=> {
+        if(searchCache[searchQuery]){
+          setSuggestions(searchCache[searchQuery]);
+        }
+        else{
+          getSearchSuggestions();
+        }
+      }, 200);
+
+      return ()=> {
+        clearTimeout(timer);
+      }
+
+    }, [searchQuery])
+
+
+    const getSearchSuggestions = async() => {
+      const rawData = await fetch(YOUTUBE_SEARCH_API + searchQuery);
+      const data = await rawData.json();
+      setSuggestions(data[1]);
+
+      dispatch(cacheResults({
+        [searchQuery]: data[1],
+      }))
+    }
+......................................................................
+
+-> Nested Comments: 
+
+const commentsData = [
+    {
+        name: "Abhishek Tiwari",
+        text: "lorem ipsum heladf dai a map mafpa",
+        replies: []
+    },
+    {
+        name: "John Snow",
+        text: "You Know Nothing",
+        replies: [{
+            name: "Jeff Bezos",
+            text: "I have a secret bunker which everyone knows about",
+            replies: []
+        }]
+    },
+    {
+        name: "Abhishek Tiwari",
+        text: "lorem ipsum heladf dai a map mafpa",
+        replies: [{
+            name: "Jeff Bezos",
+            text: "I have a secret bunker which everyone knows about",
+            replies: []
+        },
+        {
+            name: "Abhishek Tiwari",
+            text: "lorem ipsum heladf dai a map mafpa",
+            replies: []
+        },]
+    },
+    {
+        name: "Abhishek Tiwari",
+        text: "lorem ipsum heladf dai a map mafpa",
+        replies: [{
+            name: "Abhishek Tiwari",
+            text: "lorem ipsum heladf dai a map mafpa",
+            replies: [{
+                name: "Elon Musk",
+                text: "Tesla can self drive but data is manually written",
+                replies: [{
+                    name: "Dwayne Johnson",
+                    text: "lorem ipsum heladf dai a map mafpa",
+                    replies: [{
+                        name: "Narendra Modi",
+                        text: "lorem ipsum heladf dai a map mafpa",
+                        replies: []
+                    }]
+                }]
+            }]
+        }]
+    },
+    {
+        name: "Abhishek Tiwari",
+        text: "lorem ipsum heladf dai a map mafpa",
+        replies: []
+    },
+    {
+        name: "Abhishek Tiwari",
+        text: "lorem ipsum heladf dai a map mafpa",
+        replies: []
+    },
+    {
+        name: "Abhishek Tiwari",
+        text: "lorem ipsum heladf dai a map mafpa",
+        replies: []
+    }
+]
+
+const CommentsList = ({ comments }) => {
+    return comments.map((comment, index)=> (
+        <div key={index} >
+            <Comment data={comment}/>
+            <div className='pl-5 border border-l-black my-2'>
+                <CommentsList comments = {comment.replies} />
+            </div>
+        </div>
+    ))
+}
+
+const CommentsContainer = () => {
+  return (
+    <div className='mt-8'>
+      <p className='font-bold text-lg'>Comments:</p>
+      <CommentsList comments = {commentsData}/>
+    </div>
+  )
+}
+
+............................................................................
+
+LIVE CHAT: 
+
+WebSockets v/s API/Long Polling: 
+-> Both help establish real-time communication between a client (such as a web browser) and a server.
+
+-> WebSockets: creates a real-time(api call is made when new data is obtained) bi-directional communication b/w browser & server (data can flow from browser-> server as well as servver->browser). Also, connection is long-lived & client does'nt need to request for data (call is made whenever new data 
+is obtained). Ex.) Trading Apps
+
+-> API Polling: data flow uni-directional(only server->browser). Client sends request at regular intervals(say every 25 seconds) and data is batched together. Ex.) Cricbuzz(t-25s bcoz ideally it takes around 25s to deliver a ball), YT Live Chat(t=1.5s)
