@@ -10,7 +10,7 @@ S2: Create a context for a particualar data: ex.) context->UserContext.js:
     const UserContext = React.createContext();
     export default UserContext;
 
-S3: Create Context Provider for the same: ex.) constext-> UserContextProvider.jsx:
+S3: Create Context Provider for the same: ex.) context-> UserContextProvider.jsx:
 
     const UserContextProvider = ({children}) => {
         const [user, setUser] = useState(null);//this is the data we want to access/modify from any component
